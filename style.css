@@ -66,16 +66,28 @@ header {
 	cursor: pointer;
 	background: #9e1830;
 }
-#createSafe {
+
+#slider {
 	padding: 10px;
 	background-color: whitesmoke;
 }
-#createSafe h3 {
+
+#createSafe {
+	overflow: hidden;
+	transition: all 1s ease-in-out;
+}
+.hide {
+	height: 0;
+}
+#slider h3 {
 	margin: 3px;
 	color: #20799E;
 	display: inline-block;
 }
-#createSafe h5 {
+#slider h3:hover {
+	cursor: pointer;
+}
+#slider h5 {
 	display: none;
 	color: red;
 	margin: 0px;

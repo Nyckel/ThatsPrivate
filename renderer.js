@@ -7,7 +7,8 @@ const path = require("path");
 const { app } = require('electron').remote;
 const crypto = require('crypto');
 const zlib = require('zlib');
-var tar = require('tar-fs'); // If dir, use tar, then gzip
+var tar = require('tar-fs');
+const rmdir = require('rimraf');
 
 
 // All info about the files managed by the app are stored on a data.json file
@@ -15,7 +16,7 @@ var tar = require('tar-fs'); // If dir, use tar, then gzip
 // see %APPDATA% on windows ; ~/.config on linux ; ~/Library/Application Support on MacOS	
 let configFile = path.join(app.getPath('userData'), "data.json");
 let config = [];
-
+console.log(configFile);
 
 fs.readFile(configFile, 'utf8', function (err, data) { // We change the banner message depending on if the user is new or not
   if (err) {
@@ -34,7 +35,13 @@ fs.readFile(configFile, 'utf8', function (err, data) { // We change the banner m
 });
 
 document.getElementById('createSafeButton').addEventListener('click', createNewSafe);
+document.getElementById('slideBottom').addEventListener('click', slideBottom);
 
+function slideBottom() {
+	console.log("slide");
+	let elem = document.getElementById("createSafe");
+  	elem.classList.toggle('hide');
+}
 
 function updateSafeList() { // Add all entries to the GUI
 	let ul = document.querySelector("#safeList ul");
@@ -64,7 +71,10 @@ function updateSafeList() { // Add all entries to the GUI
 		li.appendChild(btnDecrypt);
 		ul.appendChild(li);
 
-		btnDecrypt.addEventListener('click', toggleEncryption);
+		pwdInput.addEventListener('keyup', e => {
+			if (e.keyCode == 13) toggleEncryption(elt.id);
+		});
+		btnDecrypt.addEventListener('click', () => {toggleEncryption(elt.id)});
 
 	}
 }
@@ -75,7 +85,7 @@ function createNewSafe() {
 	let folder = document.getElementById("folder").value;
 	let password = document.getElementById("password").value;
 	
-	let safeCreationMessage = document.querySelector("#createSafe h5");
+	let safeCreationMessage = document.querySelector("#slider h5");
 
 	if (safeNameAlreadyTaken(name)) {
 		safeCreationMessage.innerHTML = "You already have a safe with that name";
@@ -142,10 +152,11 @@ function saveConfig() {
 	});
 }
 
-function toggleEncryption(event) {
-	const id = event.srcElement.id.split("safe")[1];
-	const pwGiven = event.srcElement.parentElement.querySelector('.decryptPwd').value;
+function toggleEncryption(id) {
 	
+	const pwGiven = event.srcElement.parentElement.querySelector('.decryptPwd').value;
+	console.log(pwGiven);
+
 	console.log("Toggle encryption for safe with id", id);
 	console.log("Given", pwGiven);
 	
@@ -182,37 +193,76 @@ async function myDecrypt(i, pw) {
 	let isDir = config[i].isDir;
 	// If encrypted file was a directory -> recreate a directory
 	// To be replaced by tar-fs workflow
-	if (isDir) {
-		fs.mkdirSync(config[i].path);
-	}
-	let readStream = fs.createReadStream(config[i].path + '.enc');
+	// if (isDir) {
+	// 	fs.mkdirSync(config[i].path);
+	// }
+
+	let encryptedFileName = path.join(path.dirname(config[i].path), config[i].name) + '.enc';
+
+	let readStream = fs.createReadStream(encryptedFileName);
 	let decrypt = crypto.createDecipher('aes-256-ctr', pw);
 	let unzip = zlib.createGunzip();
-	let output = fs.createWriteStream(config[i].path);
-	// start pipe
-	readStream.pipe(decrypt).pipe(unzip).pipe(output);
-	fs.unlink(config[i].path+'.enc', err => { // Delete encrypted file
+
+	if(isDir) {
+		let tarFile = config[i].path + '.tar';
+		// let outputTar = fs.createWriteStream(tarFile);
+		
+		readStream.pipe(decrypt).pipe(unzip).pipe(fs.createWriteStream(tarFile)).on('finish', () => {
+			fs.createReadStream(tarFile).pipe(tar.extract(config[i].path)).on('finish',() => {
+				console.log("Delete tar");
+				fs.unlink(tarFile, err => {
+					if (err) console.error(err);
+				});
+			});
+		});
+
+	} else {
+		let output = fs.createWriteStream(config[i].path); 
+		readStream.pipe(decrypt).pipe(unzip).pipe(output);
+	}
+
+	fs.unlink(encryptedFileName, err => { // Delete encrypted file
 		if (err) throw err;
 	})
 	config[i].encrypted = false;
 }
 
+
+
 async function myEncrypt(i, pw) {
 
-	let readStream = fs.createReadStream(config[i].path);
+	let encryptedFileName = path.join(path.dirname(config[i].path), config[i].name) + '.enc';
+	let tarFile = config[i].path+'.tar';
 	let zip = zlib.createGzip();
-	let encrypt = crypto.createCipher('aes-256-ctr', pw);
-	let output = fs.createWriteStream(config[i].path +'.enc');
 
-	// start pipe
-	readStream.pipe(zip).pipe(encrypt).pipe(output);
+	let encrypt = crypto.createCipher('aes-256-ctr', pw);	
+
+	let output = fs.createWriteStream(encryptedFileName);
 
 	if (fs.statSync(config[i].path).isDirectory()) {
-		fs.rmdir(config[i].path, err => {
-			if (err) throw err;
+
+		tar.pack(config[i].path).pipe(fs.createWriteStream(tarFile)).on('finish', () => { // create tar
+			let readStream = fs.createReadStream(tarFile);
+			readStream.pipe(zip).pipe(encrypt).pipe(output).on('finish',() => { // Compress and encrypt
+				console.log("Delete tar");
+
+				// Delete steps
+				fs.unlink(tarFile, err => {
+					if (err) console.error(err);
+				});
+
+				rmdir(config[i].path, err => {
+					if (err) throw err;
+				});
+			});
+
+			config[i].isDir = true;
 		});
-		config[i].isDir = true;
+		
 	} else {
+		
+		let readStream = fs.createReadStream(config[i].path);		
+		readStream.pipe(zip).pipe(encrypt).pipe(output);
 		fs.unlink(config[i].path, err => {
 			if (err) throw err;
 		})
@@ -231,3 +281,4 @@ async function myEncrypt(i, pw) {
 
 	return obj.passwordHash == hash;
   }
+
