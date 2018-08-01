@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>SubtleCryptPoc</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet"> 
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to your new safe</h1>
+      <p id="message"></p>
+    </header>
+
+    <div id="content">
+
+      <div id="safeList">
+        <h3>Safes</h3>
+        <ul>
+
+        </ul>
+      </div>
+
+      <div id="createSafe">
+        <h3>Create a new safe</h3>
+        <h5>Passwords don't match</h5>
+
+        <div id="createSafeFields">
+          <div id="createSafeLeft">
+            <input type="text" id="name" placeholder="name">
+            <input type="text" id="folder" name="folder" placeholder="path">
+            <input type="password" id="password" name="password" placeholder="password">
+            <input type="password" id="confPassword" name="confPassword" placeholder="confirm password">
+          </div>
+          <button id="createSafeButton">Create</button>
+          
+        </div>
+
+      </div>
+    
+    </div>
+    
+    <footer>
+      Made are using Node.js <script>document.write(process.versions.node)</script>,
+      Chromium <script>document.write(process.versions.chrome)</script>,
+      and Electron <script>document.write(process.versions.electron)</script>.
+    </footer>
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js')
+    </script>
+  </body>
+</html>

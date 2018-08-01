@@ -1,0 +1,27 @@
+{
+  "name": "SmallEncrypter",
+  "version": "1.0.0",
+  "description": "A simple electron app to experiment the use of different encryption libraries. The app will be a password protected safe",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [
+    "encryption",
+    "sha",
+    "electron",
+    "aes"
+  ],
+  "author": "Nyckel",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  },
+  "dependencies": {
+    "install": "^0.12.1",
+    "npm": "^6.2.0",
+    "tar-fs": "^1.16.3",
+    "zlib": "^1.0.5"
+  }
+}

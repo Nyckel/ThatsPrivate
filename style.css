@@ -1,0 +1,132 @@
+html, body {
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	font-family: 'Source Sans Pro', sans-serif;
+}
+
+header {
+	background-color: #eb3b5a;
+
+	text-align: center;
+	color: white;
+}
+
+#content {
+	flex-grow: 2;
+	/* padding: 10px; */
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	
+}
+
+#safeList {
+	padding: 10px;
+
+}
+#safeList h3 {
+	margin: 3px;
+	color: #20799E;
+	display: inline-block;
+}
+#safeList ul {
+	margin: 5px 0px;
+	padding: 0px;
+}
+.safe {
+	padding: 5px;
+	list-style-type: none;
+	background: whitesmoke;
+	border: 1px solid white;
+	color: #20799E;
+	display: flex;
+	justify-content: space-between;
+}
+.safe h4 {
+	margin: 0px;
+}
+.safe input {
+	border: none;
+	border-radius: 3px;
+	color: #eb3b5a;
+	padding: 5px;
+}
+.safe button {
+	background: #eb3b5a;
+	border:	none;
+	color: white;
+	font-weight: bold;
+}
+.safe button:hover {
+	cursor: pointer;
+	background: #9e1830;
+}
+#createSafe {
+	padding: 10px;
+	background-color: whitesmoke;
+}
+#createSafe h3 {
+	margin: 3px;
+	color: #20799E;
+	display: inline-block;
+}
+#createSafe h5 {
+	display: none;
+	color: red;
+	margin: 0px;
+}
+#createSafeFields {
+	display: flex;
+}
+#createSafeLeft {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 3;
+}
+#createSafeLeft input {
+	margin: 3px;
+	padding: 5px;
+	border: none;
+	background-color:#fc5c65;
+	background: white;
+	font-weight: bold;
+	font-size: 15px;
+	color: white;
+	color: #eb3b5a;
+
+	border-radius: 3px;
+}::placeholder {
+	margin: 3px; 
+	font-weight: bold;
+	font-size: 15px;
+	color: white;
+	color: #eb3b5a;
+	color: #20799E;
+}
+#createSafeButton {
+	flex-grow: 2;
+	margin: 3px;
+	border: none;
+	background: #eb3b5a;
+	color: white;
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: bold;
+	font-size: 25px;
+}
+#createSafeButton:hover {
+	cursor:	pointer;
+	background: #9e1830;
+}
+footer {
+	background: black;
+	background: cadetblue;
+	background: #20799E;
+	color: white;
+	padding: 10px;
+	 
+}
