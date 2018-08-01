@@ -22,7 +22,6 @@ header {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	
 }
 
 #safeList {
@@ -67,6 +66,22 @@ header {
 	background: #9e1830;
 }
 
+
+
+#dropZoneMessage {
+	background: #20799E;
+	color: white;
+	border-radius: 10px;
+	text-align: center;
+	display: none;
+	padding: 20px;
+	margin: 0 auto;
+	pointer-events: none;
+
+}
+
+
+
 #slider {
 	padding: 10px;
 	background-color: whitesmoke;
@@ -78,6 +93,7 @@ header {
 }
 .hide {
 	height: 0;
+	overflow: hidden;
 }
 #slider h3 {
 	margin: 3px;

@@ -22,23 +22,73 @@ fs.readFile(configFile, 'utf8', function (err, data) { // We change the banner m
   if (err) {
   	// No safe was created yet
   	console.log("File doesn't exist");
-  	document.getElementById('message').innerHTML = "You don't have any safe yet";
+  	updateBannerWithEntries(0);
   } else {
-	document.querySelector('header h1').innerHTML = "Welcome back to your safe";
-	config = JSON.parse(data);
-    document.getElementById('message').innerHTML = config.length + " safe(s) found";
 
-	console.log(config);
+	config = JSON.parse(data);
+	updateBannerWithEntries(config.length);
 	updateSafeList();
   }
 
 });
 
+let enteredElementInDrop = null;
 document.getElementById('createSafeButton').addEventListener('click', createNewSafe);
 document.getElementById('slideBottom').addEventListener('click', slideBottom);
+document.addEventListener("dragover", e => {
+	e.preventDefault();
+	e.stopPropagation();
+	
+	// console.log(enteredElementInDrop);
+	if (enteredElementInDrop != null && enteredElementInDrop !== null && enteredElementInDrop != undefined) return;
+	else {
+		// console.log(e);
+		enteredElementInDrop = e.target;
+		document.getElementById("dropZoneMessage").style.display = "block";
+	}
+
+
+});
+
+document.addEventListener("dragleave", e => {
+	e.preventDefault();
+	e.stopPropagation();
+	if (e.target != enteredElementInDrop) return;
+	// console.log(e);
+	document.getElementById("dropZoneMessage").style.display = "none";
+	enteredElementInDrop = null;
+});
+
+document.addEventListener('drop', e => {
+	e.preventDefault();
+	let files = e.dataTransfer.files;
+	if (files.length > 1) {
+		console.log("You cannot drop more than one file or folder at the same time");
+	}
+	if (files.length == 0) return;
+
+	document.getElementById("name").value = files[0].name;
+	document.getElementById("folder").value = files[0].path;
+
+	let slider = document.getElementById("createSafe");
+  	let classes = slider.classList;
+  	if (classes.contains('hide')) {
+		classes.remove('hide');
+	}
+	document.getElementById("password").focus();
+	document.getElementById("dropZoneMessage").style.display = "none";
+})
+
+function updateBannerWithEntries(nbEntries) {
+	if (nbEntries == 0) {
+		document.getElementById('message').innerHTML = "You don't have any safe yet";
+	} else {
+		document.querySelector('header h1').innerHTML = "Welcome back to your safe";
+		document.getElementById('message').innerHTML = nbEntries + " safe(s) found";
+	}
+}
 
 function slideBottom() {
-	console.log("slide");
 	let elem = document.getElementById("createSafe");
   	elem.classList.toggle('hide');
 }
@@ -114,6 +164,7 @@ function createNewSafe() {
 	newSafe.id =  Math.floor((Math.random() * 100) + 1);
 	config.push(newSafe);
 
+	updateBannerWithEntries(config.length);
 	updateSafeList();
 	saveConfig();
 	
