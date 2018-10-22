@@ -4,6 +4,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { shell } = require('electron')
 const { app } = require('electron').remote;
 const crypto = require('crypto');
 const zlib = require('zlib');
@@ -105,26 +106,37 @@ function updateSafeList() { // Add all entries to the GUI
 		li.appendChild(title);
 
 		const pwdInput = document.createElement("input");
+		const btnOpen = document.createElement("button");
+		const btnDelete = document.createElement("button");
 		const btnDecrypt = document.createElement("button");
+		const span = document.createElement("span");
 
 		pwdInput.setAttribute("type", "password");
 		pwdInput.setAttribute("class", "decryptPwd");
 		pwdInput.setAttribute("placeholder", "password");
 		
+		btnOpen.innerHTML = "Open";
+		btnDelete.innerHTML = "Delete";
+
 		if (elt.encrypted == true) {
 			btnDecrypt.innerHTML = "Decrypt";
 		} else {
 			btnDecrypt.innerHTML = "Encrypt";
 		}
 		btnDecrypt.setAttribute("id", "safe"+elt.id);
-		li.appendChild(pwdInput);
-		li.appendChild(btnDecrypt);
+		span.appendChild(pwdInput);
+		span.appendChild(btnOpen);
+		span.appendChild(btnDelete);
+		span.appendChild(btnDecrypt);
+		li.appendChild(span);
 		ul.appendChild(li);
 
 		pwdInput.addEventListener('keyup', e => {
 			if (e.keyCode == 13) toggleEncryption(elt.id);
 		});
 		btnDecrypt.addEventListener('click', () => {toggleEncryption(elt.id)});
+		btnOpen.addEventListener('click', () => { openInExplorer(elt.id) });
+		btnDelete.addEventListener('click', () => { deleteSafe(elt.id)});
 
 	}
 }
@@ -203,14 +215,7 @@ function saveConfig() {
 	});
 }
 
-function toggleEncryption(id) {
-	
-	const pwGiven = event.srcElement.parentElement.querySelector('.decryptPwd').value;
-	console.log(pwGiven);
-
-	console.log("Toggle encryption for safe with id", id);
-	console.log("Given", pwGiven);
-	
+function getIndexOfSafeWithId(id) {
 	let index;
 	for (let i = 0; i < config.length; i++) {
 		if (config[i].id == id) {
@@ -218,6 +223,32 @@ function toggleEncryption(id) {
 			break;
 		}
 	}
+	return index;
+}
+
+function openInExplorer(id) {
+	let index = getIndexOfSafeWithId(id);
+
+	if (!shell.showItemInFolder(config[index].path)) {
+		console.error("Could not open explorer at " + config[i].path);
+	}
+}
+
+function deleteSafe(id) {
+	let index = getIndexOfSafeWithId(id);
+	config.splice(index, 1);
+
+	updateBannerWithEntries(config.length);
+	updateSafeList();
+	saveConfig();
+}
+function toggleEncryption(id) {
+	
+	const pwGiven = event.srcElement.parentElement.querySelector('.decryptPwd').value;
+	console.log("Toggle encryption for safe with id", id);
+	// console.log("Given", pwGiven);
+	
+	let index = getIndexOfSafeWithId(id);
 
 	if (!checkPassword(pwGiven, config[index].salt, config[index].passwordHash)) {
 		console.log("Wrong password");
@@ -332,4 +363,3 @@ async function myEncrypt(i, pw) {
 
 	return obj.passwordHash == hash;
   }
-

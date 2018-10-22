@@ -55,9 +55,14 @@ header {
 	color: #eb3b5a;
 	padding: 5px;
 }
+.safe span {
+	padding: 0;
+}
 .safe button {
+	height: 25px;
 	background: #eb3b5a;
 	border:	none;
+	border: 1px solid white;
 	color: white;
 	font-weight: bold;
 }

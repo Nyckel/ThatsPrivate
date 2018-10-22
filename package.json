@@ -1,5 +1,5 @@
 {
-  "name": "SmallEncrypter",
+  "name": "ThatsPrivate",
   "version": "1.0.0",
   "description": "A simple electron app to experiment the use of different encryption libraries. The app will be a password protected safe",
   "main": "main.js",
